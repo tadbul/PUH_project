@@ -1,0 +1,6 @@
+host 	  = mail.gmx.com
+port 	  = 587
+emailAddr = medinismolis@gmx.com
+username  = medinismolis@gmx.com
+password  = asdasdasd
+ident 	  = Someone important

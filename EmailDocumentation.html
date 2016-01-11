@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Email template guide</h1>
+
+<p>
+The template supports these tags:
+	
+<XMP>
+	<<AuthorName>> - Name of the author, taken from configuration file.
+	<<UserName>>   - Name of the user the email is being sent to.
+</XMP>
+
+<br/>
+
+It is possible to use conditional <i>if-then-else</i> statement like this:
+<XMP>
+	<<If>>
+	  [Condition in one line, see below]
+	<<Then>>
+	  [Text can take up more 
+	          than one line]
+	<<Else>>
+	  [Text can take up more 
+	          than one line]
+	<</If>>
+</XMP>
+
+<br/>
+The condition can be made up from these boolean operators:
+
+<XMP>
+	And (arg1) (arg2) - is True when both arguments are True
+	Or  (arg1) (arg2) - is True when at least one argument is True
+	Not (arg1)        - negates argument
+
+	~ note that the arguments are written in parentheses ~
+</XMP>
+
+<br/>
+You can use these arguments:
+
+<XMP>
+	True      - returns True
+	False     - returns False
+	isStudent - returns True if the user's role is Student
+	isTA      - returns True if the user's role is TA
+	isProf    - returns True is the user's role is Professor
+</XMP>
+
+<br/>
+
+A sample email template might look something like:
+
+<XMP>
+	  Hello <<UserName>>,
+
+	<<If>>
+	  Not (isProf)
+	<<Then>>
+	  You are either a student or a teaching assistant.
+	  Therefore you get this email body.
+	<<Else>>
+	  You are a professor. 
+	  This email body is sent only to professors.
+	<</If>>
+
+	  Regards,
+	  <<AuthorName>>
+</XMP>
+
+<br/>
+
+It is not possible to use <i>if-then-else</i> inside another <i>if-then-else</i>.
+</p>
+
+<p>
+
+<b>Email configuration</b> </br/>
+
+Save configuration data in a file with this structure:
+<XMP>
+	host 	  = smtp.example.com
+	port 	  = 25
+	emailAddr = john@doe.com
+	username  = JohnDoe
+	password  = johndoe1985
+	ident 	  = J. Doe
+</XMP>
+
+</p>
+</body>
+</html>
