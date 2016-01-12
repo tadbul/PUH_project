@@ -1,3 +1,15 @@
+module Assignments (
+    Configuration,
+    Assignment(Assignment),
+    UserIdentifier,
+    Year,
+    Submission,
+    Type(Homework , Exam , Project),
+    getConfiguration,
+    listSubmissions,
+    getSubmission,
+    createAssignment,
+    upload) where
 import Data.Time.Clock
 import Data.Time.Format
 import System.Locale
@@ -15,7 +27,7 @@ type UserIdentifier = String
 type Year = Integer
 
 -- | An assignment type
-data Type = Homework | Exam | Project 
+data Type = Homework | Exam | Project deriving Eq
 
 instance Show Type where
    show Homework = "homework" 
@@ -49,7 +61,7 @@ data Assignment = Assignment {
     year   :: Year,
     aType  :: Type,
     number :: Int
-} deriving Show
+} deriving (Show, Eq)
 
 data Submission = Submission {
     assignment     :: Assignment,
