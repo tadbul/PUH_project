@@ -1,3 +1,10 @@
+module Email (
+    Template,
+    Configuration,
+    compileTemplate,
+    readConfig,
+    sendMail) where
+
 import qualified Data.ByteString.Char8 as B
 import qualified Data.Text as T
 import qualified Data.Map as M
@@ -6,7 +13,6 @@ import qualified Data.Text.Lazy as L
 import qualified Network.Mail.Mime as Mime
 import Data.Word
 import Network.Socket.Internal
-import Language.Haskell.Interpreter
 import Data.List
 
 -- | An alias for the template contents 

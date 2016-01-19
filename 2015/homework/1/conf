@@ -1,0 +1,7 @@
+published = 2011-11-19 18:28:52.607875 UTC
+deadline = 2011-11-19 18:28:52.607875 UTC
+lateDeadline = 2011-11-19 18:28:52.607875 UTC
+files = ["exercises.hs","homework.hs"]
+minScore = 0.0
+maxScore = 8.0
+required = 4.0

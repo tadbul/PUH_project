@@ -1,14 +1,16 @@
 module Assignments (
-    Configuration,
+    Configuration(Configuration),
     Assignment(Assignment),
     UserIdentifier,
     Year,
-    Submission,
+    Submission(Submission),
     Type(Homework , Exam , Project),
     getConfiguration,
     listSubmissions,
     getSubmission,
+    listFiles,
     createAssignment,
+    getSubmissionPath,
     upload) where
 import Data.Time.Clock
 import Data.Time.Format
@@ -17,7 +19,7 @@ import System.Directory
 import Data.List
 import qualified Data.Text as T
 
-root = "G:/Mokslai/7 Sezonas/Haskell/project/"
+root = "V:/Univeras/7pusmetis/Haskell/project/PUH_project/"
 confName = "conf"
 
 -- | A user identifier (not DB id) like a username or JMBAG 
@@ -86,8 +88,12 @@ getPathFromAssignment a = root ++ (show $ year a) ++ "/" ++ (show $ aType a) ++ 
 
 getConfiguration :: Assignment -> IO Configuration
 getConfiguration asgn = do 
-   cnf <- readFile ((getPathFromAssignment asgn) ++ "/" ++ confName) 
-   return $ confFromString cnf
+    fileExist  <- doesFileExist $ (getPathFromAssignment asgn) ++ "/" ++ confName
+    if not fileExist
+    then error "Configuration file does not exist!"
+    else do
+        cnf <- readFile ((getPathFromAssignment asgn) ++ "/" ++ confName) 
+        return $ confFromString cnf
 
 listSubmissions :: Assignment -> IO [UserIdentifier]
 listSubmissions asgn = do
@@ -134,10 +140,9 @@ upload sub body name = do
     writeFile (path ++ "/" ++ name) (T.unpack body)
     return $ sub {submittedFiles = nub(name:(submittedFiles sub))}
     
-listFiles :: IO Submission -> IO [FilePath]
+listFiles :: Submission -> IO [FilePath]
 listFiles s = do
-  subm <- s
-  return $ submittedFiles subm
+  return $ submittedFiles s
     
 getSubmissionPath :: Submission -> FilePath
 getSubmissionPath s = getPathFromAssignment (assignment s) ++ "/" ++ (userId s)    
@@ -155,7 +160,7 @@ cnfg = Configuration {
 }
 
 asgn = Assignment {
-  year = 2016,
+  year = 2015,
   aType = Homework,
   number = 1
 }

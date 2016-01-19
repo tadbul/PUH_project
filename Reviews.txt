@@ -1,0 +1,1 @@
+Review {reviewAssignment = ReviewAssignment {reviewer = "Luka124", reviewee = "3984344", role = Student, assignment = Assignment {year = 2016, aType = homework, number = 1}}, score = 9.5, text = "Good job"}

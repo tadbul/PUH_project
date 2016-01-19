@@ -1,6 +1,23 @@
+module Reviews (
+    ReviewAssignment(ReviewAssignment),
+    Review(Review),
+    Role(Student, Staff),
+    assignNReviews,
+    assignReviews,
+    storeAssigments,
+    assignedReviews,
+    assignmentsBy,
+    assignmentsFor,
+    saveReview,
+    reviews,
+    reviewsBy,
+    reviewsFor) where
+    
 import System.Random
 import Assignments
 import Data.List
+import Control.Monad
+import System.Directory
 import qualified Data.Text as T
 
 -- | A user’s role or authorization level as a reviewer
@@ -21,9 +38,8 @@ data Review = Review{
     , text :: T.Text
 } deriving Show
 
-asgn = Assignment 2016 Homework 1
-
 assignmentsFile = "Assignments.txt"
+reviewsFile = "Reviews.txt"
 
 -- | Takes an Assignment, a list of reviewer identifiers and a
 -- | list of reviewee identifiers and assigns N reviewees for each
@@ -52,8 +68,6 @@ getP x0 y0 n0 = getPairs x0 y0 n0
           getPairs xs@(x:_) (y:ys) n
               | x /= y = (x,y):(getPairs xs ys (n-1))
               | otherwise = getPairs xs (ys ++ [y]) n
-              
-aaa = ["Tadas", "Andrius", "Taurius"]
 
 assignReviews :: Assignment -> [UserIdentifier] -> [UserIdentifier] -> Role -> IO [ReviewAssignment]
 assignReviews asg reviewers reviewees role = do
@@ -76,12 +90,15 @@ storeAssigments xs = do
 -- | a database or file system.
 assignedReviews :: Assignment -> IO [ReviewAssignment]
 assignedReviews asg = do
-    content <- readFile assignmentsFile
-    let assignments = filter ((==asg) . assignment) $map (getReviewFromStr) $ lines content
-    return assignments
+    fileExist  <- doesFileExist assignmentsFile
+    if not fileExist
+    then return []
+    else do
+        input <- readFile reviewsFile
+        return $ filter ((==asg) . assignment) $map (getReviewAsgFromStr) $ lines input
 
 -- Parse ReviewAssignment from string    
-getReviewFromStr str = ReviewAssignment (read $ w !! 3) (read $ w !! 6) (getRole $ w !! 9) 
+getReviewAsgFromStr str = ReviewAssignment (read $ w !! 3) (read $ w !! 6) (getRole $ w !! 9) 
                             (Assignment (read (w !! 15) :: Integer) 
                                 (getaType (w !! 18)) (read (w !! 21) :: Int)) 
     where w = words $ filter (\x -> x/=',' && x /= '}') str
@@ -117,7 +134,72 @@ assignmentsFor asg userId = do
     let rez = filter ((==userId) . reviewee) filteredAsgn
     return rez
 
+getReviewFromStr :: String -> IO Review
+getReviewFromStr str = do
+    let con = getReAsg str " "
+    let rez = Review{
+        reviewAssignment = getReviewAsgFromStr $ drop 27 $ fst con,
+        score = read (init ((words $ snd con) !! 3)) :: Double,
+        text = T.pack $ init $ init $ getText $ snd con
+    }
+    return rez
+    where getReAsg [] acc = (reverse acc, [])
+          getReAsg (a:b:xs) acc
+              | a == '}' && b == '}' = (reverse acc,xs)
+              | otherwise = getReAsg (b:xs) (a:acc)
+          getText [] = []
+          getText (x:xs)
+              | x == '"' = xs
+              | otherwise = getText xs
+    
 
+-- | Completes a review assignment and stores the result in a
+-- | file system or database.
+saveReview :: Review -> IO ()
+saveReview r = do
+    fileExist  <- doesFileExist reviewsFile
+    if not fileExist
+    then writeFile reviewsFile $ show r ++ "\n"
+    else do
+        input <- readFile reviewsFile
+        writeFile reviewsFile $ input ++ show r ++ "\n"
+ 
+-- | Loads all the completed review results for an assignment
+reviews :: Assignment -> IO [Review]
+reviews asg = do
+    fileExist  <- doesFileExist reviewsFile
+    if not fileExist
+    then return []
+    else do
+        input <- readFile reviewsFile
+        revs <- mapM getReviewFromStr $ lines input
+        return $ filter ((==asg) . assignment . reviewAssignment) revs 
 
+-- | Loads all the completed review results for an assignment
+-- | that were performed by a user.
+reviewsBy :: Assignment -> UserIdentifier -> IO [Review]
+reviewsBy asg user = do
+    revs <- reviews asg
+    return $ filter ((==user) . reviewer . reviewAssignment) revs
 
+-- | Loads all the completed review results for an assignment
+-- | that were performed by a user.
+reviewsFor :: Assignment -> UserIdentifier -> IO [Review]
+reviewsFor asg user = do
+    revs <- reviews asg
+    return $ filter ((==user) . reviewee . reviewAssignment) revs
 
+asgn = Assignment 2016 Homework 1
+
+rev = ReviewAssignment {
+    reviewer = "Luka124",
+    reviewee = "3984344",
+    role = Student,
+    assignment = asgn
+} 
+
+re = Review{
+    reviewAssignment = rev,
+    score = 9.5,
+    text = T.pack "Good job"
+}
