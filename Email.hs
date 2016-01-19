@@ -2,7 +2,7 @@ module Email (
     Template,
     Configuration,
     compileTemplate,
-    readConfig,
+    getConfiguration,
     sendMail) where
 
 import qualified Data.ByteString.Char8 as B
