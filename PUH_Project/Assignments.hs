@@ -19,7 +19,8 @@ import System.Directory
 import Data.List
 import qualified Data.Text as T
 
-root = "V:/Univeras/7pusmetis/Haskell/project/PUH_project/"
+root = "."
+
 confName = "conf"
 
 -- | A user identifier (not DB id) like a username or JMBAG 
@@ -172,8 +173,6 @@ subm = Submission {
 }
 
 
-main :: IO ()
-main = putStrLn "Hello Haskell"
 
 
 
