@@ -1,0 +1,14 @@
+Hello <<UserName>>,
+
+<<If>>
+Not (isProf)
+<<Then>>
+You are either a student or a teaching assistant.
+Therefore you get this email body.
+<<Else>>
+You are a professor. 
+This email body is sent only to professors.
+<</If>>
+
+Regards,
+<<AuthorName>>

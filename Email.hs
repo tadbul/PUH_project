@@ -11,33 +11,17 @@ import qualified Data.Map as M
 import qualified Network.Mail.SMTP as Mail
 import qualified Data.Text.Lazy as L
 import qualified Network.Mail.Mime as Mime
+import User
 import Data.Word
 import Network.Socket.Internal
 import Data.List
+import Role
 
 -- | An alias for the template contents 
 type Template = T.Text
 
--- | A user identifier (not DB id) like a username or JMBAG
-type UserIdentifier = String
 
-data Role = Student Integer -- Academic Year shorthand (2015 for 2015/16)
-    | TA Integer Integer -- AY shorthand range (inclusive)
-    | Professor deriving (Eq, Ord, Show)
 
--- | A user (the definition can be bigger)
-data User = User { identifier :: UserIdentifier
-    , email :: String
-    , pwdHash :: String
-    , role :: Role
-    } deriving (Eq, Show)
-
-user1 = User {identifier = "Vienas", email = "medinismolis@gmx.com", pwdHash = "sgsvht", role = Professor};
-user2 = User {identifier = "Du", email = "medinismolis@gmx.com", pwdHash = "sgsvht", role = Student {}};
-user3 = User {identifier = "Trys", email = "medinismolis@gmx.com", pwdHash = "sgsvht", role = Student {}};
-user4 = User {identifier = "Keturi", email = "medinismolis@gmx.com", pwdHash = "sgsvht", role = TA {}};
-user5 = User {identifier = "Linas", email = "medinismolis@gmx.com", pwdHash = "sgsvht", role = TA {}};
-userList = [user1, user2, user3, user4, user5]
 
 -- | Configuration object
 data Configuration = Configuration { 
@@ -81,13 +65,14 @@ confFromStr str = Configuration {
 -- | Sends an e-mail with given text to list of users 
 -- | using given configuration. Throws appropriate error upon failure. 
 -- | Provide subject of the email as the last argument.
-sendMail :: IO Configuration -> IO T.Text -> [User] -> String -> IO ()
-sendMail iocnfg iotxt list subj = do
+sendMail :: IO Configuration -> IO T.Text -> IO [User] -> String -> IO ()
+sendMail iocnfg iotxt usrlist subj = do
     txt <- iotxt
     cnfg <- iocnfg
+    list <- usrlist
     let mails = map (\x -> (T.pack $ email x, unwrapEither $ compileTemplate txt (createTemplateMap (ident cnfg) x), identifier x)) list
-    mapM_ (\(x,y,z) -> sendSingleMail x y z cnfg subj) mails -- sends all emails
-    --mapM_ (\(x,y,_) -> putStrLn $ (T.unpack x ++ " -> \n" ++ L.unpack y)) mails -- prints all emails
+    --mapM_ (\(x,y,z) -> sendSingleMail x y z cnfg subj) mails -- sends all emails
+    mapM_ (\(x,y,_) -> putStrLn $ (T.unpack x ++ " -> \n" ++ L.unpack y)) mails -- prints all emails
     
 -- | Prepares and sends email
 sendSingleMail :: T.Text -> L.Text -> String -> Configuration -> String -> IO ()

@@ -9,12 +9,15 @@
 {-# LANGUAGE TypeFamilies               #-}
 
 module User (
+    User(User),
     createUser,
     updateUser,
     deleteUser,
     listUsers,
     listUsersInRole,
     getUser,
+    identifier,
+    email,
     isRoleInYear,
     UserIdentifier) where
 
@@ -42,6 +45,12 @@ instance Show User where
              ",email = " ++ show (userEmail u) ++
              ",role = " ++ show (userRole u) ++ "}"
              
+identifier :: User -> UserIdentifier
+identifier = userIdentifier
+
+email :: User -> String
+email = userEmail
+
 -- | Takes a user identifier, e-mail, password and role.
 -- | Performs password hashing and stores the user into the
 -- | database, returning a filled User. If creating it fails (e.g.
@@ -108,6 +117,7 @@ getUser id = do
         case maybeEntity of
             Nothing -> error "User not found"
             Just entity -> return $ entityVal entity
+
 
 -- | Checks whether the user has a role of AT LEAST X in a given academic
 -- | year.
